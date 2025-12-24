@@ -1,0 +1,87 @@
+name: Build Tor
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+#          - os: ubuntu-latest
+#            platform: linux
+#            arch: amd64
+          - os: macos-latest
+            platform: macos
+            arch: arm64
+#          - os: macos-15-intel
+#            platform: macos
+#            arch: amd64
+#          - os: ubuntu-latest
+#            platform: windows
+#            arch: amd64
+
+    runs-on: ${{ matrix.os }}
+
+    env:
+      TOR_VERSION: 0.4.8.21
+      OPENSSL_VERSION: openssl-3.6.0
+      LIBEVENT_VERSION: release-2.1.12-stable
+      ZLIB_VERSION: v1.2.13
+      ZSTD_VERSION: v1.4.9
+      PLATFORM: ${{ matrix.platform }}
+      ARCH: ${{ matrix.arch }}
+      CFLAGS: "-O3 -pipe"
+      CXXFLAGS: "-O3 -pipe"
+      NUM_PROCS: 4
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Linux deps
+      - name: Install Linux dependencies
+        if: matrix.platform == 'linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential automake autoconf libtool pkg-config \
+            git perl python3 cmake
+
+      # macOS deps
+      - name: Install macOS dependencies
+        if: matrix.platform == 'macos'
+        run: |
+          brew update
+          brew install automake libtool pkg-config \
+                       cmake git perl
+
+      # Windows deps
+      - name: Install Linux dependencies for windows crosscompilation
+        if: matrix.platform == 'windows'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            automake autoconf libtool pkg-config \
+            git perl python3 cmake \
+            gcc-mingw-w64-x86-64 \
+            binutils-mingw-w64-x86-64
+
+      # Build Tor
+      - name: Build Tor
+        shell: bash
+        run: |
+          set -euxo pipefail
+          chmod +x scripts/build-tor.sh
+          ./scripts/build-tor.sh
+
+      # Upload artifacts
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: tor-${{ matrix.platform }}-${{ matrix.arch }}
+          path: artifacts/*
+
