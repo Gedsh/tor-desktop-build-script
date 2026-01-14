@@ -11,18 +11,18 @@ jobs:
       fail-fast: false
       matrix:
         include:
-#          - os: ubuntu-latest
-#            platform: linux
-#            arch: amd64
+          - os: ubuntu-latest
+            platform: linux
+            arch: amd64
           - os: macos-latest
             platform: macos
             arch: arm64
-#          - os: macos-15-intel
-#            platform: macos
-#            arch: amd64
-#          - os: ubuntu-latest
-#            platform: windows
-#            arch: amd64
+          - os: macos-15-intel
+            platform: macos
+            arch: amd64
+          - os: ubuntu-latest
+            platform: windows
+            arch: amd64
 
     runs-on: ${{ matrix.os }}
 
