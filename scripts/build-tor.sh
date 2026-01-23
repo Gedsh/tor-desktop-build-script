@@ -45,6 +45,9 @@ elif [[ "$PLATFORM" == "macos" ]]; then
   export CXX=clang++
   export AR=$(xcrun --find ar)
   export RANLIB=$(xcrun --find ranlib)
+  export MACOSX_DEPLOYMENT_TARGET=10.15
+  export CFLAGS="${CFLAGS:-} -mmacosx-version-min=$MACOSX_DEPLOYMENT_TARGET"
+  export LDFLAGS="${LDFLAGS:-} -mmacosx-version-min=$MACOSX_DEPLOYMENT_TARGET"
   OPENSSLDIR="$BUILDDIR/openssl"
   LIBEVENTDIR="$BUILDDIR/libevent"
 else
@@ -220,6 +223,9 @@ elif [[ "$PLATFORM" == "macos" ]]; then
     -change "$LIBEVENTDIR/lib/$LIBEVENT_FILE" \
     "@executable_path/$LIBEVENT_FILE" \
     "$TORBINDIR/tor"
+  install_name_tool \
+    -id "@executable_path/$LIBEVENT_FILE" \
+    "$TORBINDIR/$LIBEVENT_FILE"
 
 else
   install -s "$DISTDIR/bin/tor.exe" "$TORBINDIR"
