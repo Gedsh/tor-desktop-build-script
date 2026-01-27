@@ -91,6 +91,8 @@ cd libevent-src
 ./autogen.sh
 if [[ "$PLATFORM" == "windows" ]]; then
     ./configure --host="$TARGET" --disable-shared --disable-libevent-regress --disable-samples --disable-openssl --prefix="$LIBEVENTDIR"
+elif [[ "$PLATFORM" == "macos" ]]; then
+    ./configure --disable-shared --enable-static --disable-libevent-regress --disable-samples --disable-openssl --prefix="$LIBEVENTDIR"
 else
     ./configure --disable-static --enable-shared --disable-libevent-regress --disable-samples --disable-openssl --prefix="$LIBEVENTDIR"
 fi
@@ -176,10 +178,10 @@ if [[ "$PLATFORM" == "windows" ]]; then
   export CFLAGS="-I$ZSTDDIR/include $CFLAGS"
   export LDFLAGS="-L$ZSTDDIR/lib $LDFLAGS"
 elif [[ "$PLATFORM" == "macos" ]]; then
-  CONFIGURE_FLAGS+=(--enable-static-openssl)
+  CONFIGURE_FLAGS+=(--enable-static-openssl --enable-static-libevent)
 
   export CFLAGS="-I$OPENSSLDIR/include -I$LIBEVENTDIR/include  $CFLAGS"
-  export LDFLAGS="${LDFLAGS:-} -L$OPENSSLDIR/lib"
+  export LDFLAGS="-L$OPENSSLDIR/lib -L$LIBEVENTDIR/lib ${LDFLAGS:-}"
 else
   TORDEBUGDIR="$DISTDIR/debug"
   mkdir -p "$TORDEBUGDIR"
@@ -213,19 +215,8 @@ if [[ "$PLATFORM" == "linux" ]]; then
   objcopy --add-gnu-debuglink="$TORDEBUGDIR/tor" "$TORBINDIR/tor"
 
 elif [[ "$PLATFORM" == "macos" ]]; then
-   # macOS: libevent dynamic, OpenSSL static
-  cp "$LIBEVENTDIR/lib/libevent-"*.dylib "$TORBINDIR"
+ 
   cp "$DISTDIR/bin/tor" "$TORBINDIR"
-
-  LIBEVENT_FILE=$(basename "$LIBEVENTDIR/lib/libevent-"*.dylib)
-
-  install_name_tool \
-    -change "$LIBEVENTDIR/lib/$LIBEVENT_FILE" \
-    "@executable_path/$LIBEVENT_FILE" \
-    "$TORBINDIR/tor"
-  install_name_tool \
-    -id "@executable_path/$LIBEVENT_FILE" \
-    "$TORBINDIR/$LIBEVENT_FILE"
 
 else
   install -s "$DISTDIR/bin/tor.exe" "$TORBINDIR"
