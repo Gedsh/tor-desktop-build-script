@@ -178,10 +178,14 @@ if [[ "$PLATFORM" == "windows" ]]; then
   export CFLAGS="-I$ZSTDDIR/include $CFLAGS"
   export LDFLAGS="-L$ZSTDDIR/lib $LDFLAGS"
 elif [[ "$PLATFORM" == "macos" ]]; then
+  unset PKG_CONFIG_PATH
+  export PKG_CONFIG_LIBDIR=/nonexistent
+  export PKG_CONFIG=""
+
   CONFIGURE_FLAGS+=(--enable-static-openssl --enable-static-libevent)
 
-  export CFLAGS="-I$OPENSSLDIR/include -I$LIBEVENTDIR/include  $CFLAGS"
-  export LDFLAGS="-L$OPENSSLDIR/lib -L$LIBEVENTDIR/lib ${LDFLAGS:-}"
+  export CFLAGS="-I$OPENSSLDIR/include -I$LIBEVENTDIR/include"
+  export LDFLAGS="-L$OPENSSLDIR/lib -L$LIBEVENTDIR/lib"
 else
   TORDEBUGDIR="$DISTDIR/debug"
   mkdir -p "$TORDEBUGDIR"
