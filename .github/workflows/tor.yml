@@ -15,6 +15,7 @@ jobs:
           - os: ubuntu-latest
             platform: linux
             arch: amd64
+            image: debian:11
           - os: macos-latest
             platform: macos
             arch: arm64
@@ -26,10 +27,11 @@ jobs:
             arch: amd64
 
     runs-on: ${{ matrix.os }}
+    container: ${{ matrix.image }}
 
     env:
-      TOR_VERSION: 0.4.8.21
-      OPENSSL_VERSION: openssl-3.6.0
+      TOR_VERSION: 0.4.9.6
+      OPENSSL_VERSION: openssl-3.6.2
       LIBEVENT_VERSION: release-2.1.12-stable
       ZLIB_VERSION: v1.2.13
       ZSTD_VERSION: v1.4.9
@@ -46,10 +48,10 @@ jobs:
       - name: Install Linux dependencies
         if: matrix.platform == 'linux'
         run: |
-          sudo apt-get update
-          sudo apt-get install -y \
+          apt-get update
+          apt-get install -y \
             build-essential automake autoconf libtool pkg-config \
-            git perl python3 cmake
+            git perl python3 cmake zlib1g-dev
 
       # macOS deps
       - name: Install macOS dependencies

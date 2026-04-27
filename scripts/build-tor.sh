@@ -148,7 +148,7 @@ fi
 ###############################################################################
 
 if [[ ! -d tor ]]; then
-  git clone --single-branch --branch prod https://gitlab.torproject.org/Gedsh/tor.git
+  git clone --single-branch --branch prod-0.4.9 https://gitlab.torproject.org/Gedsh/tor.git
 fi
 cd tor
 git rev-parse --short=16 HEAD | sed 's/^/"/;s/$/"/' > micro-revision.i
