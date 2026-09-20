@@ -30,8 +30,8 @@ jobs:
     container: ${{ matrix.image }}
 
     env:
-      TOR_VERSION: 0.4.9.6
-      OPENSSL_VERSION: openssl-3.6.2
+      TOR_VERSION: 0.4.9.11
+      OPENSSL_VERSION: openssl-3.6.4
       LIBEVENT_VERSION: release-2.1.12-stable
       ZLIB_VERSION: v1.2.13
       ZSTD_VERSION: v1.4.9
